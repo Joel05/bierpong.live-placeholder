@@ -7,7 +7,7 @@ const CONFIG = {
   pageTitle:     'Bierpong Turnier',
 
   // Adresse (erscheint im Kalender-Event)
-  location: 'Placeholder',
+  location: 'Stockach 6, 6850 Dornbirn',
 
   // Dauer des Events in Stunden (für Kalender-Ende)
   durationHours: 12,

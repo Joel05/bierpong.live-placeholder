@@ -372,6 +372,182 @@
     .countdown__number.flip {
       animation: flipDown 0.25s cubic-bezier(0.22, 1, 0.36, 1);
     }
+
+    /* ── Rules button ────────────────────────────────────────── */
+    .rules-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 20px;
+      background: rgba(139, 92, 246, 0.07);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-family: var(--ui-font);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .rules-btn:hover {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: rgba(139, 92, 246, 0.4);
+      color: var(--purple-pale);
+    }
+
+    .rules-btn svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+
+    /* ── Modal overlay ───────────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(7, 5, 15, 0.82);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      position: relative;
+      width: 100%;
+      max-width: 680px;
+      max-height: 85vh;
+      background: #0e0b1e;
+      border: 1px solid rgba(139, 92, 246, 0.22);
+      border-radius: 20px;
+      box-shadow:
+        0 0 0 1px rgba(139, 92, 246, 0.08),
+        0 40px 80px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 28px 18px;
+      border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+      flex-shrink: 0;
+    }
+
+    .modal__title {
+      font-family: var(--number-font);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .modal__close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(139, 92, 246, 0.08);
+      border: 1px solid rgba(139, 92, 246, 0.15);
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .modal__close:hover {
+      background: rgba(139, 92, 246, 0.18);
+      color: var(--purple-pale);
+    }
+
+    .modal__close svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .modal__body {
+      overflow-y: auto;
+      padding: 24px 28px 32px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+    }
+
+    .modal__body::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .modal__body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .modal__body::-webkit-scrollbar-thumb {
+      background: rgba(139, 92, 246, 0.3);
+      border-radius: 3px;
+    }
+
+    /* ── Rules content typography ────────────────────────────── */
+    .rules h2 {
+      font-family: var(--number-font);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--purple-pale);
+      letter-spacing: 0.02em;
+      margin-top: 28px;
+      margin-bottom: 10px;
+    }
+
+    .rules h2:first-child {
+      margin-top: 0;
+    }
+
+    .rules p {
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .rules ul {
+      margin: 6px 0 8px 0;
+      padding-left: 18px;
+    }
+
+    .rules li {
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--text-secondary);
+      margin-bottom: 3px;
+    }
+
+    .rules strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .rules hr {
+      border: none;
+      border-top: 1px solid rgba(139, 92, 246, 0.1);
+      margin: 4px 0 0;
+    }
+
+    @media (max-width: 560px) {
+      .modal__header { padding: 18px 18px 14px; }
+      .modal__body   { padding: 18px 18px 24px; }
+    }
   </style>
 </head>
 <body>
@@ -463,9 +639,167 @@
       </div>
     </div>
 
+    <button class="rules-btn" id="rules-open-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+        <rect x="9" y="3" width="6" height="4" rx="1"/>
+        <line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/>
+      </svg>
+      Regeln
+    </button>
+
     <p class="footer" id="footer-text">bierpong.live</p>
 
   </main>
+
+  <!-- Rules modal -->
+  <div class="modal-overlay" id="rules-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal__header">
+        <span class="modal__title" id="modal-title">Beer Pong Regeln</span>
+        <button class="modal__close" id="rules-close-btn" aria-label="Schließen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="rules">
+          <h2>1. Grundidee</h2>
+          <p>Beer Pong wird in Teams gespielt. Ziel ist es, die Becher des gegnerischen Teams mit dem Ball zu treffen.</p>
+          <p>Trifft ein Team einen gegnerischen Becher, wird dieser Becher entfernt. Das Team, das zuerst alle gegnerischen Becher getroffen hat, gewinnt das Spiel.</p>
+          <hr>
+
+          <h2>2. Teams</h2>
+          <p>Es spielen immer zwei Teams gegeneinander. Ein Team besteht aus zwei Personen. Die Teammitglieder werfen abwechselnd oder nach Absprache innerhalb des Teams. Pro Runde hat jedes Team grundsätzlich zwei Würfe, also einen Wurf pro Spieler.</p>
+          <hr>
+
+          <h2>3. Spielaufbau</h2>
+          <p>Jedes Team stellt seine Becher auf der eigenen Tischseite auf. Die Becher werden in Dreiecksform aufgestellt, mit der Spitze zur gegnerischen Seite. Die Becher dürfen nicht absichtlich verschoben werden, außer der Schiri erlaubt es.</p>
+          <hr>
+
+          <h2>4. Spielstart</h2>
+          <p>Vor Spielbeginn wird festgelegt, welches Team beginnt – durch Auslosen, Schere-Stein-Papier oder eine andere faire Methode. Danach werfen die Teams abwechselnd.</p>
+          <hr>
+
+          <h2>5. Normale Treffer</h2>
+          <p>Ein Treffer zählt, wenn der Ball in einem gegnerischen Becher landet. Wird ein gegnerischer Becher direkt getroffen, wird genau <strong>ein Becher</strong> entfernt. Der erste Treffer zählt immer nur als <strong>ein Becher</strong>.</p>
+          <hr>
+
+          <h2>6. Trickshot / Rückläufer</h2>
+          <p>Ein Trickshot zählt erst dann als <strong>zwei Becher</strong>, wenn der Ball nach einem Wurf wieder zum werfenden Team zurückkommt und anschließend erneut geworfen und getroffen wird.</p>
+          <p><strong>Beispiel:</strong> Team A wirft, trifft nicht, der Ball rollt zurück. Team A wirft erneut und trifft → zwei Becher werden entfernt. Der ursprüngliche Wurf entfernt niemals direkt zwei Becher.</p>
+          <hr>
+
+          <h2>7. Bouncer</h2>
+          <p>Ein Bouncer ist ein Wurf, bei dem der Ball zuerst den Tisch berührt und danach in einem gegnerischen Becher landet. Ein Bouncer zählt als <strong>zwei Becher</strong>. Das verteidigende Team darf einen Bouncer abwehren, sobald der Ball den Tisch berührt hat.</p>
+          <hr>
+
+          <h2>8. Abwehren</h2>
+          <p>Normale direkte Würfe dürfen nicht abgewehrt werden. Ein Ball darf erst abgewehrt werden, wenn er den Tisch berührt hat. Wird ein direkter Wurf absichtlich abgewehrt, kann der Schiri den Wurf als getroffen werten oder eine Wiederholung anordnen.</p>
+          <hr>
+
+          <h2>9. Eigene Becher getroffen</h2>
+          <p>Trifft ein Team versehentlich einen eigenen Becher, gilt dieser als getroffen und wird entfernt – unabhängig davon, ob der Ball direkt hineinfällt oder der Becher nur getroffen wird.</p>
+          <hr>
+
+          <h2>10. Eigene Becher umgeworfen</h2>
+          <p>Wirft ein Team einen eigenen Becher um, wird dieser entfernt. Egal wodurch – durch den Ball, die Hand, den Körper oder eine ungeschickte Bewegung.</p>
+          <hr>
+
+          <h2>11. Gegnerische Becher umgeworfen</h2>
+          <p>Wird ein gegnerischer Becher durch einen Wurf umgeworfen, entscheidet der Schiri. Zählt nur, wenn klar erkennbar ist, dass der Ball den Becher direkt getroffen und dadurch umgeworfen hat. Im Zweifel entscheidet der Schiri.</p>
+          <hr>
+
+          <h2>12. Becher berühren</h2>
+          <p>Becher dürfen während des Spiels nicht unnötig berührt oder verschoben werden. Erlaubt ist es nur beim Entfernen, Neuanordnen, auf Anweisung des Schiris oder um den Ball herauszuholen. Absichtliches Manipulieren kann bestraft werden.</p>
+          <hr>
+
+          <h2>13. Re-Rack / Neuordnung</h2>
+          <p>Teams dürfen ihre verbleibenden Becher neu anordnen lassen. Die Neuordnung muss vor dem eigenen Wurf angesagt werden. Während ein Ball bereits geworfen wurde, darf keine Neuordnung mehr verlangt werden. Der Schiri entscheidet, ob die Anordnung erlaubt ist.</p>
+          <hr>
+
+          <h2>14. Würfe</h2>
+          <p>Ein Wurf zählt, sobald der Ball die Hand verlassen hat. Ein Spieler darf beim Werfen nicht absichtlich über die erlaubte Linie oder Tischkante hinausgehen. Lehnt sich ein Spieler zu weit über den Tisch, kann der Schiri den Wurf ungültig machen.</p>
+          <hr>
+
+          <h2>15. Reihenfolge der Würfe</h2>
+          <p>Pro Runde wirft jedes Team zwei Bälle – normalerweise je einer pro Spieler. Die Teams wechseln sich nach jeder Runde ab.</p>
+          <hr>
+
+          <h2>16. Balls Back</h2>
+          <p>Wenn beide Spieler eines Teams in derselben Runde treffen, bekommt das Team die Bälle zurück und darf erneut werfen. Diese Regel gilt nur, wenn sie vor Turnierbeginn aktiviert wurde.</p>
+          <hr>
+
+          <h2>17. Ablenken</h2>
+          <p>Ablenken ist grundsätzlich erlaubt, solange es fair bleibt. Nicht erlaubt sind:</p>
+          <ul>
+            <li>Berühren des Gegners</li>
+            <li>Berühren des Balls vor einem gültigen Abwehrmoment</li>
+            <li>Berühren oder Verschieben der Becher</li>
+            <li>Blockieren der Sicht direkt vor den Bechern</li>
+            <li>Schreien oder unsportliches Verhalten</li>
+          </ul>
+          <hr>
+
+          <h2>18. Ball im Becher</h2>
+          <p>Sobald der Ball im Becher liegt, zählt der Treffer. Der Ball darf nicht mehr herausgeblasen, herausgefischt oder anderweitig entfernt werden, um den Treffer zu verhindern.</p>
+          <hr>
+
+          <h2>19. Ball dreht sich im Becher</h2>
+          <p>Wenn der Ball im Becher kreist, zählt der Treffer trotzdem, sobald der Ball im Becher ist. Der Ball darf nicht herausgeblasen oder mit der Hand entfernt werden.</p>
+          <hr>
+
+          <h2>20. Becher fällt nach Treffer um</h2>
+          <p>Wenn ein Ball in einen Becher trifft und der Becher danach umfällt, zählt der Becher als getroffen und wird entfernt. Wenn unklar ist, ob der Ball wirklich im Becher war, entscheidet der Schiri.</p>
+          <hr>
+
+          <h2>21. Verschüttete Becher</h2>
+          <p>Durch eigenes Verschulden verschüttete oder umgeworfene Becher werden entfernt. Bei Fremdeinwirkung oder Tischdefekt entscheidet der Schiri.</p>
+          <hr>
+
+          <h2>22. Störungen</h2>
+          <p>Wird ein Wurf durch eine äußere Störung beeinflusst (jemand läuft in den Wurf, Tisch wird stark bewegt, fremder Ball greift ein), kann der Schiri den Wurf wiederholen lassen.</p>
+          <hr>
+
+          <h2>23. Falscher Becher entfernt</h2>
+          <p>Wird nach einem Treffer versehentlich der falsche Becher entfernt, muss der Fehler sofort korrigiert werden. Fällt der Fehler erst später auf, entscheidet der Schiri.</p>
+          <hr>
+
+          <h2>24. Letzter Becher</h2>
+          <p>Wird der letzte Becher getroffen, ist das Spiel grundsätzlich beendet. Je nach Turnierregel kann es eine Nachwurf-Regel geben.</p>
+          <hr>
+
+          <h2>25. Nachwurf</h2>
+          <p>Falls Nachwurf erlaubt ist, bekommt das Team, dessen letzter Becher getroffen wurde, noch eine letzte Chance. Trifft es ebenfalls den letzten gegnerischen Becher, geht es in die Verlängerung. Trifft es nicht, verliert es.</p>
+          <hr>
+
+          <h2>26. Verlängerung</h2>
+          <p>Kommt es zur Verlängerung, werden auf jeder Seite neue Becher aufgestellt. Die Anzahl wird vor Turnierbeginn festgelegt (z.&nbsp;B. drei Becher). Das Startrecht wird neu bestimmt oder dem Ausgleichsteam gewährt.</p>
+          <hr>
+
+          <h2>27. Schiedsrichter</h2>
+          <p>Der Schiri hat die endgültige Entscheidungsgewalt bei unklaren Treffern, umgeworfenen Bechern, Streitfällen, unsportlichem Verhalten und Regelsverstößen. Die Entscheidung des Schiris ist zu akzeptieren.</p>
+          <hr>
+
+          <h2>28. Unsportliches Verhalten</h2>
+          <p>Unsportliches Verhalten kann verwarnt oder bestraft werden. Dazu zählen:</p>
+          <ul>
+            <li>Beleidigungen</li>
+            <li>Absichtliches Manipulieren der Becher</li>
+            <li>Absichtliches Stören des Gegners</li>
+            <li>Werfen außerhalb der eigenen Runde</li>
+            <li>Ignorieren von Schiri-Entscheidungen</li>
+          </ul>
+          <p>Der Schiri kann bei wiederholtem oder schwerem Fehlverhalten ein Team disqualifizieren.</p>
+          <hr>
+
+          <h2>29–31. Spielende &amp; Sonderfälle</h2>
+          <p>Ein Spiel endet, wenn ein Team alle gegnerischen Becher getroffen hat, keinen gültigen Nachwurf schafft, aufgibt oder disqualifiziert wird. Nicht eindeutig geregelte Situationen entscheidet der Schiri fair und nachvollziehbar für alle Beteiligten.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="config.js"></script>
   <script src="animations.js"></script>
@@ -581,6 +915,34 @@
 
     const icsBlob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     document.getElementById('cal-apple').href = URL.createObjectURL(icsBlob);
+
+    // ── Rules modal ───────────────────────────────────────────
+    const rulesModal   = document.getElementById('rules-modal');
+    const rulesOpenBtn = document.getElementById('rules-open-btn');
+    const rulesCloseBtn = document.getElementById('rules-close-btn');
+
+    function openModal() {
+      rulesModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      rulesCloseBtn.focus();
+    }
+
+    function closeModal() {
+      rulesModal.classList.remove('open');
+      document.body.style.overflow = '';
+      rulesOpenBtn.focus();
+    }
+
+    rulesOpenBtn.addEventListener('click', openModal);
+    rulesCloseBtn.addEventListener('click', closeModal);
+
+    rulesModal.addEventListener('click', (e) => {
+      if (e.target === rulesModal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && rulesModal.classList.contains('open')) closeModal();
+    });
   </script>
 </body>
 </html>
