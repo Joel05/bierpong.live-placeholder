@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="page-title">Bierpong Turnier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-base:        #07050f;
+      --bg-mid:         #0e0b1e;
+      --bg-card:        rgba(255, 255, 255, 0.035);
+      --border-subtle:  rgba(139, 92, 246, 0.18);
+      --border-card:    rgba(139, 92, 246, 0.12);
+      --purple-deep:    #3b0764;
+      --purple-mid:     #6d28d9;
+      --purple-soft:    #8b5cf6;
+      --purple-pale:    #c4b5fd;
+      --purple-glow:    rgba(109, 40, 217, 0.25);
+      --text-primary:   #f5f3ff;
+      --text-secondary: #a78bfa;
+      --text-muted:     #6b5b8e;
+      --number-font:    'Space Grotesk', sans-serif;
+      --ui-font:        'Inter', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: var(--ui-font);
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Background gradient orbs ────────────────────────────── */
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-orb--1 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(88, 28, 135, 0.35) 0%, transparent 70%);
+      top: -150px;
+      left: -150px;
+    }
+
+    .bg-orb--2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(59, 7, 100, 0.4) 0%, transparent 70%);
+      bottom: -100px;
+      right: -100px;
+    }
+
+    .bg-orb--3 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(109, 40, 217, 0.15) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* ── Subtle noise texture overlay ───────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    /* ── Main wrapper ────────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      padding: 24px 16px;
+      width: 100%;
+      max-width: 720px;
+    }
+
+    /* ── Header ──────────────────────────────────────────────── */
+    .header {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header__eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      opacity: 0.75;
+    }
+
+    .header__title {
+      font-family: var(--number-font);
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+
+    .header__title span {
+      color: var(--purple-pale);
+    }
+
+    .header__divider {
+      width: 48px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--purple-mid), transparent);
+      border-radius: 2px;
+      margin-top: 4px;
+    }
+
+    /* ── Card ────────────────────────────────────────────────── */
+    .card {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 20px;
+      padding: 48px 40px 40px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow:
+        0 0 0 1px rgba(139, 92, 246, 0.06),
+        0 32px 64px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* faint inner glow at top */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+    }
+
+    /* ── Countdown grid ──────────────────────────────────────── */
+    .countdown {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .countdown__unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      min-width: 120px;
+    }
+
+    .countdown__number {
+      font-family: var(--number-font);
+      font-size: clamp(52px, 9vw, 88px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 40px rgba(139, 92, 246, 0.2);
+    }
+
+    .countdown__label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .countdown__sep {
+      font-family: var(--number-font);
+      font-size: clamp(44px, 7vw, 72px);
+      font-weight: 300;
+      color: var(--border-subtle);
+      line-height: 1;
+      padding: 0 4px;
+      margin-top: 4px;
+      user-select: none;
+    }
+
+    /* ── Meta info ───────────────────────────────────────────── */
+    .meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid rgba(139, 92, 246, 0.1);
+      flex-wrap: wrap;
+    }
+
+    .meta__item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      opacity: 0.8;
+    }
+
+    .meta__icon {
+      width: 16px;
+      height: 16px;
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    .meta__divider {
+      width: 1px;
+      height: 16px;
+      background: var(--border-subtle);
+      opacity: 0.5;
+    }
+
+    /* ── Calendar section ───────────────────────────────────── */
+    .cal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(139, 92, 246, 0.1);
+    }
+
+    .cal__label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .cal__buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .cal__btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: rgba(139, 92, 246, 0.07);
+      border: 1px solid rgba(139, 92, 246, 0.2);
+      border-radius: 10px;
+      color: var(--text-secondary);
+      font-family: var(--ui-font);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .cal__btn:hover {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: rgba(139, 92, 246, 0.4);
+      color: var(--purple-pale);
+    }
+
+    .cal__btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* ── Finished state ──────────────────────────────────────── */
+    .finished-msg {
+      font-family: var(--number-font);
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 600;
+      color: var(--purple-pale);
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    .footer {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      opacity: 0.45;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 560px) {
+      .card {
+        padding: 36px 20px 32px;
+        border-radius: 16px;
+      }
+
+      .countdown__unit {
+        min-width: 72px;
+      }
+
+      .countdown__sep {
+        padding: 0 2px;
+      }
+
+      .meta {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .meta__divider {
+        display: none;
+      }
+    }
+
+    /* ── Flip animation on number change ─────────────────────── */
+    @keyframes flipDown {
+      0%   { transform: translateY(-8px); opacity: 0; }
+      100% { transform: translateY(0);    opacity: 1; }
+    }
+
+    .countdown__number.flip {
+      animation: flipDown 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-orb bg-orb--1"></div>
+  <div class="bg-orb bg-orb--2"></div>
+  <div class="bg-orb bg-orb--3"></div>
+
+  <main class="page">
+
+    <header class="header">
+      <p class="header__eyebrow">Save the date</p>
+      <h1 class="header__title" id="header-title">Bierpong <span>Turnier</span></h1>
+      <div class="header__divider"></div>
+    </header>
+
+    <div class="card">
+      <div class="countdown" id="countdown">
+        <div class="countdown__unit">
+          <span class="countdown__number" id="days">00</span>
+          <span class="countdown__label">Days</span>
+        </div>
+        <span class="countdown__sep">:</span>
+        <div class="countdown__unit">
+          <span class="countdown__number" id="hours">00</span>
+          <span class="countdown__label">Hours</span>
+        </div>
+        <span class="countdown__sep">:</span>
+        <div class="countdown__unit">
+          <span class="countdown__number" id="minutes">00</span>
+          <span class="countdown__label">Minutes</span>
+        </div>
+        <span class="countdown__sep">:</span>
+        <div class="countdown__unit">
+          <span class="countdown__number" id="seconds">00</span>
+          <span class="countdown__label">Seconds</span>
+        </div>
+      </div>
+
+      <div class="cal">
+        <span class="cal__label">Zum Kalender hinzufügen</span>
+        <div class="cal__buttons">
+          <a id="cal-google" class="cal__btn" target="_blank" rel="noopener">
+            <!-- Google Calendar icon -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="9" y1="3" x2="9" y2="9" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="15" y1="3" x2="15" y2="9" stroke="currentColor" stroke-width="1.5"/>
+              <text x="12" y="18" text-anchor="middle" font-size="7" fill="currentColor" font-family="sans-serif" font-weight="700">G</text>
+            </svg>
+            Google
+          </a>
+          <a id="cal-apple" class="cal__btn" href="#" download="bierpong-turnier.ics">
+            <!-- Apple icon -->
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.39-1.32 2.76-2.53 3.99zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+            </svg>
+            Apple
+          </a>
+          <a id="cal-outlook" class="cal__btn" target="_blank" rel="noopener">
+            <!-- Outlook icon -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="4" width="13" height="16" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="9" y="8" width="13" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <circle cx="8" cy="12" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            Outlook
+          </a>
+        </div>
+      </div>
+
+      <div class="meta" id="meta">
+        <div class="meta__item">
+          <svg class="meta__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span id="meta-date">—</span>
+        </div>
+        <div class="meta__divider"></div>
+        <div class="meta__item">
+          <svg class="meta__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span id="meta-time">—</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="footer" id="footer-text">bierpong.live</p>
+
+  </main>
+
+  <script src="config.js"></script>
+  <script>
+    const targetDate = new Date(CONFIG.tournamentDate);
+
+    const els = {
+      days:    document.getElementById('days'),
+      hours:   document.getElementById('hours'),
+      minutes: document.getElementById('minutes'),
+      seconds: document.getElementById('seconds'),
+      metaDate: document.getElementById('meta-date'),
+      metaTime: document.getElementById('meta-time'),
+    };
+
+    // Populate meta info
+    els.metaDate.textContent = targetDate.toLocaleDateString('de-DE', {
+      day: '2-digit', month: 'long', year: 'numeric'
+    });
+    els.metaTime.textContent = targetDate.toLocaleTimeString('de-DE', {
+      hour: '2-digit', minute: '2-digit'
+    }) + ' Uhr';
+
+    function pad(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    function setNumber(el, val) {
+      const next = pad(val);
+      if (el.textContent !== next) {
+        el.textContent = next;
+        el.classList.remove('flip');
+        void el.offsetWidth; // reflow
+        el.classList.add('flip');
+      }
+    }
+
+    function tick() {
+      const now  = Date.now();
+      const diff = targetDate.getTime() - now;
+
+      if (diff <= 0) {
+        document.getElementById('countdown').innerHTML =
+          '<p class="finished-msg">Das Turnier hat begonnen! 🍺</p>';
+        return;
+      }
+
+      const days    = Math.floor(diff / 86400000);
+      const hours   = Math.floor((diff % 86400000) / 3600000);
+      const minutes = Math.floor((diff % 3600000)  / 60000);
+      const seconds = Math.floor((diff % 60000)    / 1000);
+
+      setNumber(els.days,    days);
+      setNumber(els.hours,   hours);
+      setNumber(els.minutes, minutes);
+      setNumber(els.seconds, seconds);
+    }
+
+    // Apply config to static elements
+    document.getElementById('page-title').textContent   = CONFIG.pageTitle;
+    document.getElementById('footer-text').textContent  = CONFIG.footer;
+    const titleEl = document.getElementById('header-title');
+    const words   = CONFIG.eventTitle.split(' ');
+    titleEl.innerHTML = words.slice(0, -1).join(' ') + ' <span>' + words.at(-1) + '</span>';
+
+    tick();
+    setInterval(tick, 1000);
+
+    // ── Calendar links ────────────────────────────────────────
+    const EVENT_TITLE    = CONFIG.eventTitle;
+    const EVENT_LOCATION = CONFIG.location;
+    const EVENT_DURATION = CONFIG.durationHours * 60 * 60 * 1000;
+    const endDate        = new Date(targetDate.getTime() + EVENT_DURATION);
+
+    function toISOBasic(d) {
+      return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    }
+
+    // Google Calendar
+    const gcUrl = new URL('https://calendar.google.com/calendar/render');
+    gcUrl.searchParams.set('action', 'TEMPLATE');
+    gcUrl.searchParams.set('text', EVENT_TITLE);
+    gcUrl.searchParams.set('dates', `${toISOBasic(targetDate)}/${toISOBasic(endDate)}`);
+    gcUrl.searchParams.set('location', EVENT_LOCATION);
+    document.getElementById('cal-google').href = gcUrl.toString();
+
+    // Outlook Web
+    const olUrl = new URL('https://outlook.live.com/calendar/0/deeplink/compose');
+    olUrl.searchParams.set('subject', EVENT_TITLE);
+    olUrl.searchParams.set('startdt', targetDate.toISOString());
+    olUrl.searchParams.set('enddt', endDate.toISOString());
+    olUrl.searchParams.set('location', EVENT_LOCATION);
+    olUrl.searchParams.set('path', '/calendar/action/compose');
+    document.getElementById('cal-outlook').href = olUrl.toString();
+
+    // Apple / ICS download
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Bierpong Turnier//DE',
+      'BEGIN:VEVENT',
+      `DTSTART:${toISOBasic(targetDate)}`,
+      `DTEND:${toISOBasic(endDate)}`,
+      `SUMMARY:${EVENT_TITLE}`,
+      `LOCATION:${EVENT_LOCATION}`,
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\r\n');
+
+    const icsBlob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    document.getElementById('cal-apple').href = URL.createObjectURL(icsBlob);
+  </script>
+</body>
+</html>
