@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="cup" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#4c1d95"/>
+    </linearGradient>
+    <linearGradient id="ball" x1="30%" y1="20%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#c4b5fd"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Cup body -->
+  <path d="M5 13 L8.5 28 L23.5 28 L27 13 Z" fill="url(#cup)"/>
+
+  <!-- Rim -->
+  <ellipse cx="16" cy="13" rx="11" ry="2.8" fill="#8b5cf6"/>
+  <ellipse cx="16" cy="12.5" rx="11" ry="2.8" fill="#c4b5fd"/>
+
+  <!-- Liquid surface inside cup -->
+  <ellipse cx="16" cy="15" rx="9.2" ry="2" fill="#6d28d9" opacity="0.55"/>
+
+  <!-- Subtle highlight stripe on cup -->
+  <path d="M7.5 15 L9.8 26.5" stroke="rgba(255,255,255,0.12)" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Ping pong ball -->
+  <circle cx="22" cy="6" r="4.5" fill="url(#ball)"/>
+  <!-- Ball shine -->
+  <circle cx="20.5" cy="4.5" r="1.2" fill="white" opacity="0.6"/>
+</svg>
