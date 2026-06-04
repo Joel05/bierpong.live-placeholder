@@ -525,6 +525,345 @@
     };
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // ANIMATION 4 — "Bounce" (arcade billiards)
+  // ══════════════════════════════════════════════════════════════════════════
+  function animBounce() {
+    let canvas, ctx, W, H, raf;
+    let balls = [], cups = [], ripples = [];
+    let prevTime = null;
+    const TRAIL = 20;
+
+    function buildCups() {
+      cups = [];
+      const sp = clamp(Math.min(W, H) * 0.065, 26, 48);
+      for (const [cx, cy] of [[W * 0.27, H * 0.46], [W * 0.73, H * 0.46]]) {
+        for (let r = 0; r < 4; r++)
+          for (let c = 0; c <= r; c++)
+            cups.push({ x: cx + (c - r / 2) * sp, y: cy - r * sp * 0.87,
+                        alive: true, opacity: 1, glow: 0 });
+      }
+    }
+
+    function spawnBall() {
+      const angle = Math.PI * (0.22 + Math.random() * 0.56);
+      const speed = clamp(W * 0.21, 160, 300);
+      return {
+        x: W * (0.25 + Math.random() * 0.5),
+        y: H * 0.9,
+        vx: Math.cos(angle) * speed * (Math.random() < 0.5 ? 1 : -1),
+        vy: -Math.sin(angle) * speed,
+        trail: [],
+        delay: Math.random() * 700,
+      };
+    }
+
+    function update(dt) {
+      const s = dt / 1000;
+      ripples = ripples.filter(r => r.o > 0);
+      for (const r of ripples) { r.ra += dt * 0.065; r.o -= dt * 0.002; }
+      for (const c of cups) {
+        if (!c.alive) c.opacity = Math.max(0, c.opacity - s * 1.6);
+        c.glow = Math.max(0, c.glow - s * 3);
+      }
+      if (!cups.some(c => c.alive)) buildCups();
+
+      for (const b of balls) {
+        if (b.delay > 0) { b.delay -= dt; continue; }
+        b.x += b.vx * s; b.y += b.vy * s;
+        if (b.x < 7)   { b.x = 7;   b.vx =  Math.abs(b.vx); }
+        if (b.x > W-7) { b.x = W-7; b.vx = -Math.abs(b.vx); }
+        if (b.y < 7)   { b.y = 7;   b.vy =  Math.abs(b.vy); }
+        if (b.y > H + 30) { Object.assign(b, spawnBall()); b.trail = []; continue; }
+        b.trail.push({ x: b.x, y: b.y });
+        if (b.trail.length > TRAIL) b.trail.shift();
+
+        for (const c of cups) {
+          if (!c.alive) continue;
+          const dx = b.x - c.x, dy = b.y - c.y, d2 = dx * dx + dy * dy;
+          if (d2 < 13 * 13) {
+            c.alive = false; c.glow = 1;
+            ripples.push({ x: c.x, y: c.y, ra: 5, o: 0.8 });
+            const dot = (b.vx * dx + b.vy * dy) / d2;
+            b.vx -= 2 * dot * dx; b.vy -= 2 * dot * dy;
+          }
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      for (const c of cups) {
+        if (c.opacity <= 0) continue;
+        ctx.save(); ctx.globalAlpha = c.opacity;
+        const r = 10 + c.glow * 5;
+        ctx.beginPath(); ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(49,10,90,0.55)'; ctx.fill();
+        ctx.strokeStyle = `rgba(139,92,246,${0.5 + c.glow * 0.5})`; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.beginPath(); ctx.arc(c.x, c.y, r, Math.PI * 1.15, Math.PI * 1.85);
+        ctx.strokeStyle = `rgba(196,181,253,${0.35 + c.glow * 0.5})`; ctx.lineWidth = 2; ctx.stroke();
+        ctx.restore();
+      }
+      for (const r of ripples) {
+        ctx.beginPath(); ctx.arc(r.x, r.y, r.ra, 0, Math.PI * 2);
+        ctx.strokeStyle = rgba(C.ripple, r.o); ctx.lineWidth = 1.2; ctx.stroke();
+      }
+      for (const b of balls) {
+        if (b.delay > 0) continue;
+        const n = b.trail.length;
+        for (let i = 0; i < n; i++) {
+          ctx.beginPath(); ctx.arc(b.trail[i].x, b.trail[i].y, 1 + (i / n) * 3, 0, Math.PI * 2);
+          ctx.fillStyle = rgba(C.trail, (i / n) * 0.42); ctx.fill();
+        }
+        ctx.save();
+        ctx.shadowColor = 'rgba(196,181,253,0.7)'; ctx.shadowBlur = 12;
+        ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = C.ball; ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function loop(ts) {
+      raf = requestAnimationFrame(loop);
+      const dt = prevTime ? Math.min(ts - prevTime, 50) : 16;
+      prevTime = ts; update(dt); draw();
+    }
+
+    return {
+      start(c) {
+        canvas = c; ({ ctx, W, H } = setupCanvas(canvas));
+        buildCups();
+        balls = Array.from({ length: 3 }, spawnBall);
+        window.addEventListener('resize', () => {
+          ({ ctx, W, H } = setupCanvas(canvas));
+          buildCups(); balls = Array.from({ length: 3 }, spawnBall);
+        });
+        raf = requestAnimationFrame(loop);
+      },
+      stop() { cancelAnimationFrame(raf); },
+    };
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ANIMATION 5 — "Grid" (pulsing cup field)
+  // ══════════════════════════════════════════════════════════════════════════
+  function animGrid() {
+    let canvas, ctx, W, H, raf;
+    let t = 0, grid = [], balls = [], ripples = [];
+    let prevTime = null, nextBall = 1200;
+    const COLS = 9, ROWS = 7;
+
+    function buildGrid() {
+      grid = [];
+      const px = W * 0.07, py = H * 0.09;
+      const sx = (W - px * 2) / (COLS - 1), sy = (H - py * 2) / (ROWS - 1);
+      for (let r = 0; r < ROWS; r++)
+        for (let c = 0; c < COLS; c++)
+          grid.push({ x: px + c * sx, y: py + r * sy, phase: (r * COLS + c) * 0.42, hit: 0 });
+    }
+
+    function spawnBall() {
+      const fromLeft = Math.random() < 0.5;
+      const spd = clamp(W * 0.13, 90, 180);
+      return {
+        x: fromLeft ? -8 : W + 8,
+        y: H * (0.12 + Math.random() * 0.76),
+        vx: fromLeft ? spd : -spd,
+        vy: (Math.random() - 0.5) * 70,
+        trail: [], done: false,
+      };
+    }
+
+    function update(dt) {
+      t += dt * 0.001;
+      nextBall -= dt;
+      if (nextBall <= 0) { balls.push(spawnBall()); nextBall = 1600 + Math.random() * 1400; }
+      ripples = ripples.filter(r => r.o > 0);
+      for (const r of ripples) { r.ra += dt * 0.055; r.o -= dt * 0.0018; }
+      for (const g of grid) g.hit = Math.max(0, g.hit - dt * 0.002);
+      balls = balls.filter(b => !b.done);
+      const s = dt / 1000;
+      for (const b of balls) {
+        b.x += b.vx * s; b.y += b.vy * s;
+        b.trail.push({ x: b.x, y: b.y });
+        if (b.trail.length > 22) b.trail.shift();
+        if (b.x < -40 || b.x > W + 40 || b.y < -40 || b.y > H + 40) { b.done = true; continue; }
+        for (const g of grid) {
+          const dx = b.x - g.x, dy = b.y - g.y;
+          if (dx * dx + dy * dy < 18 * 18 && g.hit < 0.1) {
+            g.hit = 1;
+            ripples.push({ x: g.x, y: g.y, ra: 4, o: 0.65 });
+          }
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      for (const g of grid) {
+        const pulse = (Math.sin(t * 2.1 + g.phase) + 1) * 0.5;
+        const r = 5 + pulse * 2.5 + g.hit * 5;
+        const alpha = 0.14 + pulse * 0.18 + g.hit * 0.45;
+        ctx.beginPath(); ctx.arc(g.x, g.y, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(139,92,246,${alpha})`; ctx.lineWidth = 1.2; ctx.stroke();
+        ctx.beginPath(); ctx.arc(g.x, g.y, r * 0.38, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(59,7,100,${0.22 + pulse * 0.22 + g.hit * 0.28})`; ctx.fill();
+      }
+      for (const r of ripples) {
+        ctx.beginPath(); ctx.arc(r.x, r.y, r.ra, 0, Math.PI * 2);
+        ctx.strokeStyle = rgba(C.ripple, r.o); ctx.lineWidth = 1.1; ctx.stroke();
+      }
+      for (const b of balls) {
+        const n = b.trail.length;
+        for (let i = 0; i < n; i++) {
+          ctx.beginPath(); ctx.arc(b.trail[i].x, b.trail[i].y, 1 + (i / n) * 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = rgba(C.trail, (i / n) * 0.38); ctx.fill();
+        }
+        if (n > 0) {
+          ctx.save();
+          ctx.shadowColor = 'rgba(196,181,253,0.7)'; ctx.shadowBlur = 10;
+          ctx.beginPath(); ctx.arc(b.x, b.y, 4.5, 0, Math.PI * 2);
+          ctx.fillStyle = C.ball; ctx.fill();
+          ctx.restore();
+        }
+      }
+    }
+
+    function loop(ts) {
+      raf = requestAnimationFrame(loop);
+      const dt = prevTime ? Math.min(ts - prevTime, 50) : 16;
+      prevTime = ts; update(dt); draw();
+    }
+
+    return {
+      start(c) {
+        canvas = c; ({ ctx, W, H } = setupCanvas(canvas));
+        buildGrid();
+        window.addEventListener('resize', () => { ({ ctx, W, H } = setupCanvas(canvas)); buildGrid(); });
+        raf = requestAnimationFrame(loop);
+      },
+      stop() { cancelAnimationFrame(raf); },
+    };
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ANIMATION 6 — "Orbit" (concentric cup rings)
+  // ══════════════════════════════════════════════════════════════════════════
+  function animOrbit() {
+    let canvas, ctx, W, H, raf;
+    let t = 0, rings = [], balls = [], ripples = [];
+    let prevTime = null;
+    const RING_COUNT = 4;
+
+    function buildRings() {
+      rings = [];
+      const base = Math.min(W, H) * 0.1;
+      const max  = Math.min(W, H) * 0.43;
+      for (let i = 0; i < RING_COUNT; i++) {
+        const r      = base + (max - base) * (i / (RING_COUNT - 1));
+        const count  = 4 + i * 3;
+        const speed  = (0.28 / (i + 1)) * (i % 2 === 0 ? 1 : -1);
+        const cups   = Array.from({ length: count }, (_, j) => ({
+          angle: (j / count) * Math.PI * 2,
+          hit: 0,
+        }));
+        rings.push({ r, speed, offset: Math.random() * Math.PI * 2, cups });
+      }
+      balls = rings.map((ring, i) => ({
+        ringIdx: i,
+        angle:   Math.random() * Math.PI * 2,
+        speed:   ring.speed * (2.1 + Math.random() * 0.8) * (Math.random() < 0.5 ? 1 : -1),
+        trail:   [],
+        cx: 0, cy: 0,
+      }));
+    }
+
+    function cupXY(ring, cup) {
+      const a = cup.angle + ring.offset;
+      return { x: W / 2 + Math.cos(a) * ring.r, y: H / 2 + Math.sin(a) * ring.r };
+    }
+
+    function update(dt) {
+      t += dt * 0.001;
+      ripples = ripples.filter(r => r.o > 0);
+      for (const r of ripples) { r.ra += dt * 0.055; r.o -= dt * 0.0018; }
+      for (const ring of rings) {
+        ring.offset += ring.speed * dt * 0.001;
+        for (const c of ring.cups) c.hit = Math.max(0, c.hit - dt * 0.002);
+      }
+      for (const b of balls) {
+        b.angle += b.speed * dt * 0.001;
+        const ring = rings[b.ringIdx];
+        b.cx = W / 2 + Math.cos(b.angle) * ring.r;
+        b.cy = H / 2 + Math.sin(b.angle) * ring.r;
+        b.trail.push({ x: b.cx, y: b.cy });
+        if (b.trail.length > 20) b.trail.shift();
+        for (const c of ring.cups) {
+          const { x, y } = cupXY(ring, c);
+          const dx = b.cx - x, dy = b.cy - y;
+          if (dx * dx + dy * dy < 11 * 11 && c.hit < 0.1) {
+            c.hit = 1;
+            ripples.push({ x, y, ra: 4, o: 0.65 });
+          }
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      // Faint ring guides
+      for (const ring of rings) {
+        ctx.beginPath(); ctx.arc(W / 2, H / 2, ring.r, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(109,40,217,0.07)'; ctx.lineWidth = 1; ctx.stroke();
+      }
+      // Cups
+      for (const ring of rings) {
+        for (const c of ring.cups) {
+          const { x, y } = cupXY(ring, c);
+          const r = 5.5 + c.hit * 5;
+          ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(139,92,246,${0.28 + c.hit * 0.5})`; ctx.lineWidth = 1.3; ctx.stroke();
+          ctx.beginPath(); ctx.arc(x, y, r * 0.42, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(59,7,100,${0.35 + c.hit * 0.3})`; ctx.fill();
+        }
+      }
+      // Ripples
+      for (const r of ripples) {
+        ctx.beginPath(); ctx.arc(r.x, r.y, r.ra, 0, Math.PI * 2);
+        ctx.strokeStyle = rgba(C.ripple, r.o); ctx.lineWidth = 1.1; ctx.stroke();
+      }
+      // Balls + trails
+      for (const b of balls) {
+        const n = b.trail.length;
+        for (let i = 0; i < n; i++) {
+          ctx.beginPath(); ctx.arc(b.trail[i].x, b.trail[i].y, 1 + (i / n) * 3, 0, Math.PI * 2);
+          ctx.fillStyle = rgba(C.trail, (i / n) * 0.38); ctx.fill();
+        }
+        ctx.save();
+        ctx.shadowColor = 'rgba(196,181,253,0.7)'; ctx.shadowBlur = 10;
+        ctx.beginPath(); ctx.arc(b.cx, b.cy, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = C.ball; ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function loop(ts) {
+      raf = requestAnimationFrame(loop);
+      const dt = prevTime ? Math.min(ts - prevTime, 50) : 16;
+      prevTime = ts; update(dt); draw();
+    }
+
+    return {
+      start(c) {
+        canvas = c; ({ ctx, W, H } = setupCanvas(canvas));
+        buildRings();
+        window.addEventListener('resize', () => { ({ ctx, W, H } = setupCanvas(canvas)); buildRings(); });
+        raf = requestAnimationFrame(loop);
+      },
+      stop() { cancelAnimationFrame(raf); },
+    };
+  }
+
   // ── Export ────────────────────────────────────────────────────────────────
-  window.ANIMATIONS = [animMatch(), animRain(), animMultiball()];
+  window.ANIMATIONS = [animMatch(), animRain(), animMultiball(), animBounce(), animGrid(), animOrbit()];
 }());
