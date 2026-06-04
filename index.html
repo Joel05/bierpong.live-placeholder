@@ -323,10 +323,38 @@
 
     /* ── Footer ──────────────────────────────────────────────── */
     .footer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       font-size: 11px;
       color: var(--text-muted);
       letter-spacing: 0.06em;
       opacity: 0.45;
+    }
+
+    .footer__dot {
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .footer__link {
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: var(--ui-font);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.15s, opacity 0.15s;
+    }
+
+    .footer__link:hover {
+      color: var(--purple-pale);
+      opacity: 1;
     }
 
     /* ── Responsive ──────────────────────────────────────────── */
@@ -648,9 +676,39 @@
       Regeln
     </button>
 
-    <p class="footer" id="footer-text">bierpong.live</p>
+    <p class="footer">
+      <span id="footer-text">bierpong.live</span>
+      <span class="footer__dot"></span>
+      <button class="footer__link" id="impressum-open-btn">Impressum</button>
+    </p>
 
   </main>
+
+  <!-- Impressum modal -->
+  <div class="modal-overlay" id="impressum-modal" role="dialog" aria-modal="true" aria-labelledby="impressum-title">
+    <div class="modal">
+      <div class="modal__header">
+        <span class="modal__title" id="impressum-title">Impressum</span>
+        <button class="modal__close" id="impressum-close-btn" aria-label="Schließen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="rules">
+          <h2>Angaben gemäß § 5 ECG</h2>
+          <p id="impressum-address"></p>
+
+          <h2>Kontakt</h2>
+          <p>E-Mail: <a id="impressum-email" href="#" style="color:var(--purple-pale);text-decoration:none;"></a></p>
+
+          <h2>Haftungsausschluss</h2>
+          <p>Diese Website ist eine private, nicht-kommerzielle Veranstaltungsseite. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte wird keine Gewähr übernommen.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Rules modal -->
   <div class="modal-overlay" id="rules-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -940,8 +998,43 @@
       if (e.target === rulesModal) closeModal();
     });
 
+    // ── Impressum content from config ────────────────────────
+    const imp = CONFIG.impressum;
+    const addrEl = document.getElementById('impressum-address');
+    addrEl.innerHTML = `${imp.name}<br>${imp.street}<br>${imp.city}<br>${imp.country}`;
+    const emailEl = document.getElementById('impressum-email');
+    emailEl.textContent = imp.email;
+    emailEl.href = `mailto:${imp.email}`;
+
+    // ── Impressum modal ───────────────────────────────────────
+    const impressumModal    = document.getElementById('impressum-modal');
+    const impressumOpenBtn  = document.getElementById('impressum-open-btn');
+    const impressumCloseBtn = document.getElementById('impressum-close-btn');
+
+    function openImpressum() {
+      impressumModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      impressumCloseBtn.focus();
+    }
+
+    function closeImpressum() {
+      impressumModal.classList.remove('open');
+      document.body.style.overflow = '';
+      impressumOpenBtn.focus();
+    }
+
+    impressumOpenBtn.addEventListener('click', openImpressum);
+    impressumCloseBtn.addEventListener('click', closeImpressum);
+
+    impressumModal.addEventListener('click', (e) => {
+      if (e.target === impressumModal) closeImpressum();
+    });
+
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && rulesModal.classList.contains('open')) closeModal();
+      if (e.key === 'Escape') {
+        if (rulesModal.classList.contains('open'))     closeModal();
+        if (impressumModal.classList.contains('open')) closeImpressum();
+      }
     });
   </script>
 </body>

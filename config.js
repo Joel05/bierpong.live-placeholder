@@ -14,4 +14,13 @@ const CONFIG = {
 
   // Footer-Text
   footer: 'bierpong.live',
+
+  // Impressum
+  impressum: {
+    name:    'Joel Rupp',
+    street:  'Lerchenstraße 34c',
+    city:    '6922 Wolfurt',
+    country: 'Österreich',
+    email:   'joel.rupp05@gmail.com',
+  },
 };
