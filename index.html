@@ -354,6 +354,15 @@
       }
     }
 
+    /* ── Background canvas ───────────────────────────────────── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
     /* ── Flip animation on number change ─────────────────────── */
     @keyframes flipDown {
       0%   { transform: translateY(-8px); opacity: 0; }
@@ -366,6 +375,8 @@
   </style>
 </head>
 <body>
+
+  <canvas id="bg-canvas"></canvas>
 
   <div class="bg-orb bg-orb--1"></div>
   <div class="bg-orb bg-orb--2"></div>
@@ -457,6 +468,7 @@
   </main>
 
   <script src="config.js"></script>
+  <script src="animations.js"></script>
   <script>
     const targetDate = new Date(CONFIG.tournamentDate);
 
@@ -521,6 +533,10 @@
 
     tick();
     setInterval(tick, 1000);
+
+    // ── Random animation ──────────────────────────────────────
+    const pick = ANIMATIONS[Math.floor(Math.random() * ANIMATIONS.length)];
+    pick.start(document.getElementById('bg-canvas'));
 
     // ── Calendar links ────────────────────────────────────────
     const EVENT_TITLE    = CONFIG.eventTitle;
