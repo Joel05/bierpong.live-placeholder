@@ -33,8 +33,10 @@
       --ui-font:        'Inter', sans-serif;
     }
 
-    html, body {
+    html {
       height: 100%;
+      /* prevent horizontal bounce on iOS */
+      overflow-x: hidden;
     }
 
     body {
@@ -42,13 +44,21 @@
       background-color: var(--bg-base);
       color: var(--text-primary);
       min-height: 100vh;
+      min-height: 100svh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      overflow: hidden;
+      /* overflow-x hidden hides canvas bleed; overflow-y auto allows scroll on small screens */
+      overflow-x: hidden;
+      overflow-y: auto;
       position: relative;
+      /* prevent text size inflation on iOS rotation */
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
+
+    /* prevent 300ms tap delay on interactive elements */
+    a, button { touch-action: manipulation; }
 
     /* ── Background gradient orbs ────────────────────────────── */
     .bg-orb {
@@ -99,11 +109,16 @@
     .page {
       position: relative;
       z-index: 1;
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 28px;
-      padding: 24px 16px;
+      padding: 32px 16px;
+      /* respect iPhone notch / home bar */
+      padding-top:    max(32px, env(safe-area-inset-top));
+      padding-bottom: max(32px, env(safe-area-inset-bottom));
       width: 100%;
       max-width: 720px;
     }
@@ -128,7 +143,7 @@
 
     .header__title {
       font-family: var(--number-font);
-      font-size: clamp(28px, 5vw, 44px);
+      font-size: clamp(26px, 6vw, 44px);
       font-weight: 700;
       letter-spacing: -0.02em;
       color: var(--text-primary);
@@ -281,13 +296,16 @@
       gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
+      width: 100%;
     }
 
     .cal__btn {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
-      padding: 10px 18px;
+      padding: 11px 18px;
+      min-height: 44px;
       background: rgba(139, 92, 246, 0.07);
       border: 1px solid rgba(139, 92, 246, 0.2);
       border-radius: 10px;
@@ -300,7 +318,7 @@
       transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
 
-    .cal__btn:hover {
+    .cal__btn:hover, .cal__btn:active {
       background: rgba(139, 92, 246, 0.15);
       border-color: rgba(139, 92, 246, 0.4);
       color: var(--purple-pale);
@@ -315,7 +333,7 @@
     /* ── Finished state ──────────────────────────────────────── */
     .finished-msg {
       font-family: var(--number-font);
-      font-size: clamp(24px, 4vw, 36px);
+      font-size: clamp(22px, 5vw, 36px);
       font-weight: 600;
       color: var(--purple-pale);
       text-align: center;
@@ -343,7 +361,7 @@
     .footer__link {
       background: none;
       border: none;
-      padding: 0;
+      padding: 4px 0;
       font-family: var(--ui-font);
       font-size: 11px;
       color: var(--text-muted);
@@ -353,34 +371,9 @@
       transition: color 0.15s, opacity 0.15s;
     }
 
-    .footer__link:hover {
+    .footer__link:hover, .footer__link:active {
       color: var(--purple-pale);
       opacity: 1;
-    }
-
-    /* ── Responsive ──────────────────────────────────────────── */
-    @media (max-width: 560px) {
-      .card {
-        padding: 36px 20px 32px;
-        border-radius: 16px;
-      }
-
-      .countdown__unit {
-        min-width: 72px;
-      }
-
-      .countdown__sep {
-        padding: 0 2px;
-      }
-
-      .meta {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .meta__divider {
-        display: none;
-      }
     }
 
     /* ── Background canvas ───────────────────────────────────── */
@@ -407,7 +400,8 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      padding: 9px 20px;
+      padding: 11px 22px;
+      min-height: 44px;
       background: rgba(139, 92, 246, 0.07);
       border: 1px solid rgba(139, 92, 246, 0.2);
       border-radius: 10px;
@@ -419,7 +413,7 @@
       transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
 
-    .rules-btn:hover {
+    .rules-btn:hover, .rules-btn:active {
       background: rgba(139, 92, 246, 0.15);
       border-color: rgba(139, 92, 246, 0.4);
       color: var(--purple-pale);
@@ -453,7 +447,7 @@
       position: relative;
       width: 100%;
       max-width: 680px;
-      max-height: 85vh;
+      max-height: 88vh;
       background: #0e0b1e;
       border: 1px solid rgba(139, 92, 246, 0.22);
       border-radius: 20px;
@@ -484,45 +478,40 @@
     }
 
     .modal__close {
-      width: 32px;
-      height: 32px;
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
       background: rgba(139, 92, 246, 0.08);
       border: 1px solid rgba(139, 92, 246, 0.15);
-      border-radius: 8px;
+      border-radius: 10px;
       color: var(--text-muted);
       cursor: pointer;
       transition: background 0.15s, color 0.15s;
       flex-shrink: 0;
     }
 
-    .modal__close:hover {
+    .modal__close:hover, .modal__close:active {
       background: rgba(139, 92, 246, 0.18);
       color: var(--purple-pale);
     }
 
     .modal__close svg {
-      width: 14px;
-      height: 14px;
+      width: 15px;
+      height: 15px;
     }
 
     .modal__body {
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       padding: 24px 28px 32px;
       scrollbar-width: thin;
       scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
     }
 
-    .modal__body::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    .modal__body::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
+    .modal__body::-webkit-scrollbar { width: 5px; }
+    .modal__body::-webkit-scrollbar-track { background: transparent; }
     .modal__body::-webkit-scrollbar-thumb {
       background: rgba(139, 92, 246, 0.3);
       border-radius: 3px;
@@ -539,9 +528,7 @@
       margin-bottom: 10px;
     }
 
-    .rules h2:first-child {
-      margin-top: 0;
-    }
+    .rules h2:first-child { margin-top: 0; }
 
     .rules p {
       font-size: 13.5px;
@@ -573,9 +560,72 @@
       margin: 4px 0 0;
     }
 
+    /* ══════════════════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════════════════ */
+
+    /* Tablets and large phones (≤ 640px) */
+    @media (max-width: 640px) {
+      .card {
+        padding: 36px 24px 30px;
+        border-radius: 18px;
+      }
+      .countdown__unit { min-width: 80px; }
+      .countdown__sep  { padding: 0 2px; }
+      .meta {
+        margin-top: 28px;
+        padding-top: 22px;
+        gap: 12px;
+      }
+      .cal { margin-top: 24px; padding-top: 20px; }
+      .page { gap: 22px; }
+    }
+
+    /* Small phones (≤ 480px) */
+    @media (max-width: 480px) {
+      .page { gap: 18px; padding-left: 12px; padding-right: 12px; }
+      .card { padding: 28px 18px 24px; border-radius: 16px; }
+
+      .countdown__unit { min-width: 64px; gap: 8px; }
+      .countdown__number { font-size: clamp(38px, 10vw, 56px); }
+      .countdown__sep    { font-size: clamp(30px, 8vw, 44px); padding: 0 1px; margin-top: 3px; }
+      .countdown__label  { font-size: 9px; letter-spacing: 0.14em; }
+
+      .meta { flex-direction: column; gap: 10px; margin-top: 22px; padding-top: 18px; }
+      .meta__divider { display: none; }
+
+      .cal { margin-top: 20px; padding-top: 18px; gap: 12px; }
+      .cal__buttons { flex-direction: column; }
+      .cal__btn { width: 100%; padding: 13px 16px; font-size: 14px; }
+
+      .header { gap: 8px; }
+      .header__title { font-size: clamp(24px, 7vw, 36px); }
+    }
+
+    /* Very small phones — iPhone SE, Galaxy A series (≤ 375px) */
+    @media (max-width: 375px) {
+      .page { padding-left: 10px; padding-right: 10px; gap: 16px; }
+      .card { padding: 24px 14px 20px; }
+      .countdown__unit { min-width: 54px; }
+      .countdown__number { font-size: 34px; }
+      .countdown__sep    { font-size: 26px; }
+    }
+
+    /* Modal — bottom sheet on mobile */
     @media (max-width: 560px) {
-      .modal__header { padding: 18px 18px 14px; }
-      .modal__body   { padding: 18px 18px 24px; }
+      .modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+      }
+      .modal {
+        max-height: 92vh;
+        border-radius: 20px 20px 0 0;
+        border-bottom: none;
+        /* account for home bar */
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      .modal__header { padding: 20px 20px 16px; }
+      .modal__body   { padding: 16px 20px 28px; }
     }
   </style>
 </head>
